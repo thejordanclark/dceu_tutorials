@@ -28,18 +28,18 @@ We are all about containers, so our logging solution will be containerized!
 		$ docker volume ls
 		DRIVER              VOLUME NAME
 		local               orca-elasticsearch-data
-	
+
 	Other volumes may appear in the list above.
 
 ## Task 2: Compose containers
 
 1. Run the following three containers - elastisearch, logstash, and kibana:
 
-   	    $ docker run -d --name elasticsearch -v orca-elasticsearch-data:/usr/share/elasticsearch/data elasticsearch elasticsearch -Des.network.host=0.0.0.0
+   	    $ docker run -d --name elasticsearch -v orca-elasticsearch-data:/usr/share/elasticsearch/data -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.0.1
 
-   	    $ docker run -d -p 514:514 --name logstash --link elasticsearch:es logstash sh -c "logstash -e 'input { syslog { } } output { stdout { } elasticsearch { hosts => [ \"es\" ] } } filter { json { source => \"message\" } }'"
+   	    $ docker run -d -p 514:514 --name logstash --link elasticsearch:es logstash:7.0.1  sh -c "logstash -e 'input { syslog { } } output { stdout { } elasticsearch { hosts => [ \"es\" ] } } filter { json { source => \"message\" } }'"
 
-   	    $ docker run -d --name kibana --link elasticsearch:elasticsearch -p 5601:5601 kibana
+   	    $ docker run -d --name kibana --link elasticsearch:elasticsearch -p 5601:5601 kibana:7.0.1
 
 2. Verify all three containers are running.
 
@@ -59,8 +59,8 @@ Now that the three containers are up and running, you can view logs.
 1. Point your web browser to your node on port 5601
 
 	Example: `http://ec2-52-90-128-138.compute-1.amazonaws.com:5601/`
-	
-	From here you can browse and search log/event entries. 
+
+	From here you can browse and search log/event entries.
 
 	>**Note:** When deploying in production environments, you should secure kibana (not described in this doc).
 
